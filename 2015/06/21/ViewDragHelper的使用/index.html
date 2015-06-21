@@ -20,7 +20,7 @@
 
 
 
-  <meta name="keywords" content="hexo," />
+  <meta name="keywords" content="Android View," />
 
 
 
@@ -43,7 +43,7 @@
 
 
 
-  <title> Hexo 搭建 // chenupt 个人博客 </title>
+  <title> ViewDragHelper的使用 // chenupt 个人博客 </title>
 </head>
 
 <body>
@@ -146,7 +146,7 @@
           
           
             
-              Hexo 搭建
+              ViewDragHelper的使用
             
           
         </h1>
@@ -154,7 +154,7 @@
 
       <div class="post-meta">
         <span class="post-time">
-          發表於 2015-03-14
+          發表於 2015-06-21
         </span>
 
         
@@ -163,8 +163,8 @@
           
             <span class="post-comments-count">
             &nbsp; | &nbsp;
-            <a href="/2015/03/14/hexo-搭建/#comments" >
-              <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2015/03/14/hexo-搭建/"></span>
+            <a href="/2015/06/21/ViewDragHelper的使用/#comments" >
+              <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2015/06/21/ViewDragHelper的使用/"></span>
             </a>
           </span>
           
@@ -178,19 +178,51 @@
       
 
       
-        <p>一场奔波过后，这段时间得空可以整理一些平常所学。个人博客也是熬了许久转到今天的Hexo。之前的CSDN，WordPress，Octopress效果总是不尽如人意,当然这也是跟自己文墨不深有关。今日偷闲整了一个Hexo博客，安装过程相对来说比较简洁，没有遇到太多的坑。<br><a id="more"></a><br>以后会用的几个点整理了一下：</p>
-<h3 id="安装环境">安装环境</h3><ul>
-<li>win7 64</li>
-<li>node 0.12.0</li>
-<li>npm 2.5.1</li>
+        <p>ViewDragHelper是v4包中的一个工具类，类路径为<code>android.support.v4.widget</code>。主要作用是帮助开发者更方便的实现view的拖动效果。在v4包中相应的使用有<code>DrawerLayout</code>和<code>SlidingPaneLayout</code>。<br><a id="more"></a><br>在不使用ViewDragHelper的情况下实现View的拖动效果一般需要处理这几步：</p>
+<ol>
+<li>在父类的ViewGroup中根据手势位置判断是否拦截手势</li>
+<li>拦截完手势事件的处理</li>
+<li>View状态位置的更新</li>
+<li>惯性滑动</li>
+<li>…<br>在<a href="https://github.com/SimonVT/android-menudrawer" target="_blank" rel="external">MenuDrawer</a>中便是根据自定义的逻辑处理drawer的各个状态，有兴趣的也可以研究MenuDrawer的源码。</li>
+</ol>
+<p>使用ViewDragHelper方式来实现</p>
+<ol>
+<li>绑定ViewGroup和ViewDragHelper</li>
+<li>将事件传递给ViewDragHelper</li>
+<li>在ViewDragHelper.Callback中处理手势逻辑</li>
+</ol>
+<p>开发者只需关注Callback中各个位置及状态值得更新即可。相比于自定义实现，ViewDragHelper所做的便是将手势事件拦截以及事件处理封装在自己内部，已回调的形式返回开发者所需的各个属性值，从而省去开发者花费在事件拦截事件处理上的时间。</p>
+<p>下面实现一个简单的横向拖动View的例子。<br>效果图<br><img src="https://github.com/chenupt/blog/blob/master/res/hdrag.gif?raw=true" alt="hdrag"></p>
+<ol>
+<li><p>实现一个自定义ViewGroup。因为拖动事件涉及到父类状态，边境大小等，封装在ViewGroup中更能方便的控制View。ViewDragHelper也是依托于ViewGroup的事件拦截完成View状态的回调。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DragLayout</span> <span class="keyword">extends</span> <span class="title">FrameLayout</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>初始化绑定ViewGroup和ViewDragHelper。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    viewDragHelper = ViewDragHelper.create(<span class="keyword">this</span>, <span class="number">1</span>.f, callback);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>参数1为创建的ViewGroup<br>参数2为拖动的敏感度。敏感的定义看下面源码可知，1.0f为正常值(normal)，值越大越敏感。 mTouchSlop为拖动的开始值，当超过手势的move值便认为开始滑动。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">helper.mTouchSlop = (<span class="keyword">int</span>) (helper.mTouchSlop * (<span class="number">1</span> / sensitivity));</span><br></pre></td></tr></table></figure></p>
+<p>参数3为ViewDragHelper的Callback实现。主要的拖动处理逻辑都在Callback中实现。</p>
+<ol>
+<li><p>将ViewGroup的事件传递给ViewDragHelper处理</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="annotation">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">onInterceptTouchEvent</span><span class="params">(MotionEvent ev)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> viewDragHelper.shouldInterceptTouchEvent(ev);    </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="annotation">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">onTouchEvent</span><span class="params">(MotionEvent event)</span> </span>&#123;</span><br><span class="line">    viewDragHelper.processTouchEvent(event);</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">true</span>;    <span class="comment">// 需消费touch事件，否则ViewGroup将不会接收Down的后续事件</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>前面准备完便可在实现Callback在回调中处理自己的逻辑了。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> ViewDragHelper.Callback callback = <span class="keyword">new</span> ViewDragHelper.Callback() &#123;</span><br><span class="line"></span><br><span class="line">    <span class="annotation">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">tryCaptureView</span><span class="params">(View child, <span class="keyword">int</span> pointerId)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> child == targetView; <span class="comment">// targetView 为所要拖动的view</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="annotation">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getViewHorizontalDragRange</span><span class="params">(View child)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> getWidth();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/**</span><br><span class="line">     * 该方法用于限制子view沿水平拖曳的手势.默认的实现是,不允许水平手势.如果有类继承了该类,</span><br><span class="line">     * 必须覆盖重写该方法,并且提供值去限制该拖曳手势.</span><br><span class="line">     */</span></span><br><span class="line">    <span class="annotation">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">clampViewPositionHorizontal</span><span class="params">(View child, <span class="keyword">int</span> left, <span class="keyword">int</span> dx)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> left;    <span class="comment">// 返回手势点，在这里可进行范围的一些限制</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="annotation">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onViewPositionChanged</span><span class="params">(View changedView, <span class="keyword">int</span> left, <span class="keyword">int</span> top, <span class="keyword">int</span> dx, <span class="keyword">int</span> dy)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>.onViewPositionChanged(changedView, left, top, dx, dy);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="annotation">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onViewReleased</span><span class="params">(View releasedChild, <span class="keyword">float</span> xvel, <span class="keyword">float</span> yvel)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>.onViewReleased(releasedChild, xvel, yvel);</span><br><span class="line">        viewDragHelper.settleCapturedViewAt(getPaddingLeft(), getPaddingRight());</span><br><span class="line">        invalidate();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>上面实现的为几个主要的回调函数。调用顺序也是从上至下。</p>
+<ul>
+<li>当手势是在目标view的范围内（tryCaptureView）,</li>
+<li>判断该方向是否允许拖动（getViewHorizontalDragRange），</li>
+<li>当手势位置改变时（clampViewPositionHorizontal），返回新的view坐标（return），</li>
+<li>相应View位置的改变（onViewPositionChanged），</li>
+<li>当手势释放（onViewReleased），获取释放的加速度（xvel），</li>
+<li>相应可以设置释放后最终view位置（settleCapturedViewAt）。</li>
 </ul>
-<p>我直接到官网下的installer，安装完直接可用。</p>
-<h3 id="安装教程(v3-0-0)">安装教程(v3.0.0)</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install hexo-cli -g&#10;hexo init blog&#10;cd blog&#10;npm install&#10;hexo server</span><br></pre></td></tr></table></figure>
-<h3 id="部署到GitHub">部署到GitHub</h3><p>先安装deployer，需在blog目录下<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install hexo-deployer-git --save</span><br></pre></td></tr></table></figure></p>
-<p>再修改_config.xml：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">deploy:&#10;  type: git    #&#37096;&#32626;&#31867;&#22411;&#10;  repository: git@github.com:chenupt/chenupt.github.io.git  #&#37096;&#32626;&#30340;&#20179;&#24211;&#30340;SSH&#10;  branch: master   #&#37096;&#32626;&#20998;&#25903;,&#19968;&#33324;&#20351;&#29992;master&#20027;&#20998;&#25903;</span><br></pre></td></tr></table></figure></p>
-<h3 id="主题">主题</h3><p>主题使用在知乎上的一个推荐：<a href="https://github.com/iissnan/hexo-theme-next" target="_blank" rel="external">NexT</a>，效果很赞。</p>
-<h3 id="其他">其他</h3><p>生成部署简洁命令：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo g -d</span><br></pre></td></tr></table></figure></p>
-<p>查看更多：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#60;!-- more --&#62;</span><br></pre></td></tr></table></figure></p>
+<p>如果需要释放View有滚动效果，则还需要复写<code>computeScroll</code>，这是因为ViewDragHelper内部使用了<code>Scroller</code>来处理view的滚动。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="annotation">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">computeScroll</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (viewDragHelper.continueSettling(<span class="keyword">true</span>)) &#123;</span><br><span class="line">        ViewCompat.postInvalidateOnAnimation(<span class="keyword">this</span>); <span class="comment">// 滚动还未停止继续刷新</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>简单几步便可实现拖动的效果。</p>
 
       
     </div>
@@ -199,7 +231,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/hexo/"> #hexo </a>
+            <a href="/tags/Android-View/"> #Android View </a>
           
         </div>
       
@@ -208,11 +240,11 @@
         <div class="post-nav">
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2015/06/21/ViewDragHelper的使用/">ViewDragHelper的使用</a>
-            
           </div>
 
           <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/03/14/hexo-搭建/">Hexo 搭建</a>
             
           </div>
         </div>
@@ -326,7 +358,7 @@
           <div class="post-toc">
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#安装环境"><span class="nav-number">1.</span> <span class="nav-text">安装环境</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#安装教程(v3-0-0)"><span class="nav-number">2.</span> <span class="nav-text">安装教程(v3.0.0)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#部署到GitHub"><span class="nav-number">3.</span> <span class="nav-text">部署到GitHub</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#主题"><span class="nav-number">4.</span> <span class="nav-text">主题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#其他"><span class="nav-number">5.</span> <span class="nav-text">其他</span></a></li></ol></div>
+              <p class="post-toc-empty">此文章未包含目錄</p>
             
           </div>
           <div class="post-toc-indicator-bottom post-toc-indicator"></div>
@@ -551,9 +583,9 @@
 
     <script type="text/javascript">
       var disqus_shortname = 'chenupt';
-      var disqus_identifier = '2015/03/14/hexo-搭建/';
-      var disqus_title = 'Hexo 搭建';
-      var disqus_url = 'http://yoursite.com/2015/03/14/hexo-搭建/';
+      var disqus_identifier = '2015/06/21/ViewDragHelper的使用/';
+      var disqus_title = 'ViewDragHelper的使用';
+      var disqus_url = 'http://yoursite.com/2015/06/21/ViewDragHelper的使用/';
 
       function run_disqus_script(disqus_script){
         var dsq = document.createElement('script');

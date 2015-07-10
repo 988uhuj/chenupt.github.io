@@ -20,7 +20,7 @@
 
 
 
-  <meta name="keywords" content="hexo," />
+  <meta name="keywords" content="Android," />
 
 
 
@@ -43,7 +43,7 @@
 
 
 
-  <title> Hexo 搭建 // chenupt 个人博客 </title>
+  <title> AndroidStudio 使用分享 // chenupt 个人博客 </title>
 </head>
 
 <body>
@@ -146,7 +146,7 @@
           
           
             
-              Hexo 搭建
+              AndroidStudio 使用分享
             
           
         </h1>
@@ -154,7 +154,7 @@
 
       <div class="post-meta">
         <span class="post-time">
-          發表於 2015-03-14
+          發表於 2015-06-26
         </span>
 
         
@@ -163,8 +163,8 @@
           
             <span class="post-comments-count">
             &nbsp; | &nbsp;
-            <a href="/2015/03/14/hexo-搭建/#comments" >
-              <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2015/03/14/hexo-搭建/"></span>
+            <a href="/2015/06/26/AndroidStudio-使用分享/#comments" >
+              <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2015/06/26/AndroidStudio-使用分享/"></span>
             </a>
           </span>
           
@@ -178,19 +178,47 @@
       
 
       
-        <p>一场奔波过后，这段时间得空可以整理一些平常所学。个人博客也是熬了许久转到今天的Hexo。之前的CSDN，WordPress，Octopress效果总是不尽如人意,当然这也是跟自己文墨不深有关。今日偷闲整了一个Hexo博客，安装过程相对来说比较简洁，没有遇到太多的坑。<br><a id="more"></a><br>以后会用的几个点整理了一下：</p>
-<h3 id="安装环境">安装环境</h3><ul>
-<li>win7 64</li>
-<li>node 0.12.0</li>
-<li>npm 2.5.1</li>
-</ul>
-<p>我直接到官网下的installer，安装完直接可用。</p>
-<h3 id="安装教程(v3-0-0)">安装教程(v3.0.0)</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install hexo-cli -g&#10;hexo init blog&#10;cd blog&#10;npm install&#10;hexo server</span><br></pre></td></tr></table></figure>
-<h3 id="部署到GitHub">部署到GitHub</h3><p>先安装deployer，需在blog目录下<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install hexo-deployer-git --save</span><br></pre></td></tr></table></figure></p>
-<p>再修改_config.xml：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">deploy:&#10;  type: git    #&#37096;&#32626;&#31867;&#22411;&#10;  repository: git@github.com:chenupt/chenupt.github.io.git  #&#37096;&#32626;&#30340;&#20179;&#24211;&#30340;SSH&#10;  branch: master   #&#37096;&#32626;&#20998;&#25903;,&#19968;&#33324;&#20351;&#29992;master&#20027;&#20998;&#25903;</span><br></pre></td></tr></table></figure></p>
-<h3 id="主题">主题</h3><p>主题使用在知乎上的一个推荐：<a href="https://github.com/iissnan/hexo-theme-next" target="_blank" rel="external">NexT</a>，效果很赞。</p>
-<h3 id="其他">其他</h3><p>生成部署简洁命令：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo g -d</span><br></pre></td></tr></table></figure></p>
-<p>查看更多：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#60;!-- more --&#62;</span><br></pre></td></tr></table></figure></p>
+        <p>新建，导入的时候gradle需初始化，会下载当前项目所需的gradle版本，迟迟下载不下来可通过离线安装来完成。<br>1.在用户目录下，进入如下目录，目录中会列出当成电脑中所拥有的所有gradle版本。</p>
+<blockquote>
+<p>~\.gradle\wrapper\dists</p>
+</blockquote>
+<p>2.如果是要安装gradle2.2.1的版本，则进入2.2.1的目录，将在官网下载完的gradle的zip包覆盖到目录下并解压缩。同时将part的后缀名修改为ok即可。</p>
+<a id="more"></a>
+<hr>
+<p>新导入的git，svn工程无法显示版本管理，可通过下面方式打开。</p>
+<blockquote>
+<p>VCS-&gt;Enabled Version Control Integration</p>
+</blockquote>
+<hr>
+<p>Android中.so 文件在Studio中存放的目录默认为</p>
+<blockquote>
+<p>src/main/jinLibs</p>
+</blockquote>
+<p>相对应的还有assets目录</p>
+<blockquote>
+<p>src/main/assets</p>
+</blockquote>
+<hr>
+<p>在lib目录中添加jar需手动sync，才可将jar包添加进依赖</p>
+<hr>
+<p>加载本地aar，aar可放在任一目录，这里将其放在libs目录底下<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">repositories &#123;</span><br><span class="line">	mavenCentral()</span><br><span class="line">	flatDir &#123;</span><br><span class="line">		dirs <span class="string">'libs'</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">    </span><br><span class="line"><span class="function">compile <span class="title">project</span><span class="params">(name<span class="string">':xxlibrary'</span>,ext:<span class="string">'aar'</span>)</span></span></span><br></pre></td></tr></table></figure></p>
+<hr>
+<p>gradle中使用SNAPSHOT的包时，gradle会默认缓存该包24小时，如果不需要缓存，则可以通过如下配置来改变缓存时间。<a href="http://stackoverflow.com/questions/13565082/how-can-i-force-gradle-to-redownload-dependencies" target="_blank" rel="external">http://stackoverflow.com/questions/13565082/how-can-i-force-gradle-to-redownload-dependencies</a><br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">configurations.all &#123;</span><br><span class="line">    resolutionStrategy &#123;</span><br><span class="line">        cacheChangingModulesFor <span class="number">0</span>, <span class="string">'seconds'</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">dependencies &#123;</span><br><span class="line">    compile group: <span class="string">"group"</span>, name: <span class="string">"projectA"</span>, version: <span class="string">"1.1-SNAPSHOT"</span>, changing: <span class="keyword">true</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<hr>
+<p>在library中最小版本号与当前最小版本不一致时，可通过overrideLibrary忽略library的最小版本来合并清单<br><a href="http://tools.android.com/tech-docs/new-build-system/user-guide/manifest-merger#TOC-tools:overrideLibrary-marker" target="_blank" rel="external">更多Manifest合并</a><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#60;uses-sdk tools:overrideLibrary=&#34;com.xxx.mylibrary&#34; /&#62;</span><br></pre></td></tr></table></figure></p>
+<hr>
+<p>依赖传递, aar默认不引入arr的依赖，但会自动引入jar的依赖<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">compile (<span class="string">'com.github.chenupt.android:dragtoplayout:1.2.1@aar'</span>)&#123;</span><br><span class="line">    transitive=<span class="keyword">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<hr>
+<p>签名<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"> signingConfigs &#123;</span><br><span class="line">     release &#123;</span><br><span class="line">         <span class="comment">// read from signing.properties</span></span><br><span class="line"><span class="function">storeFile <span class="title">file</span><span class="params">(<span class="string">"temp.file"</span>)</span></span><br><span class="line">         storePassword ""</span><br><span class="line">         keyAlias ""</span><br><span class="line">         keyPassword ""</span><br><span class="line">     &#125;</span><br><span class="line"> &#125;</span></span><br></pre></td></tr></table></figure></p>
+<hr>
+<p>偶尔studio会出现如下报错</p>
+<blockquote>
+<p>no debuggable applications</p>
+</blockquote>
+<p>可通过下面方法解决</p>
+<blockquote>
+<p>tools-&gt;android-&gt;Enable ADB Integration</p>
+</blockquote>
 
       
     </div>
@@ -199,7 +227,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/hexo/"> #hexo </a>
+            <a href="/tags/Android/"> #Android </a>
           
         </div>
       
@@ -208,11 +236,13 @@
         <div class="post-nav">
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2015/06/21/ViewDragHelper的使用/">ViewDragHelper的使用</a>
+              <a href="/2015/07/10/Android-M-更新整理/">Android M 更新整理</a>
             
           </div>
 
           <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/06/21/ViewDragHelper的使用/">ViewDragHelper的使用</a>
             
           </div>
         </div>
@@ -326,7 +356,7 @@
           <div class="post-toc">
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#安装环境"><span class="nav-number">1.</span> <span class="nav-text">安装环境</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#安装教程(v3-0-0)"><span class="nav-number">2.</span> <span class="nav-text">安装教程(v3.0.0)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#部署到GitHub"><span class="nav-number">3.</span> <span class="nav-text">部署到GitHub</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#主题"><span class="nav-number">4.</span> <span class="nav-text">主题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#其他"><span class="nav-number">5.</span> <span class="nav-text">其他</span></a></li></ol></div>
+              <p class="post-toc-empty">此文章未包含目錄</p>
             
           </div>
           <div class="post-toc-indicator-bottom post-toc-indicator"></div>
@@ -551,9 +581,9 @@
 
     <script type="text/javascript">
       var disqus_shortname = 'chenupt';
-      var disqus_identifier = '2015/03/14/hexo-搭建/';
-      var disqus_title = 'Hexo 搭建';
-      var disqus_url = 'http://yoursite.com/2015/03/14/hexo-搭建/';
+      var disqus_identifier = '2015/06/26/AndroidStudio-使用分享/';
+      var disqus_title = 'AndroidStudio 使用分享';
+      var disqus_url = 'http://yoursite.com/2015/06/26/AndroidStudio-使用分享/';
 
       function run_disqus_script(disqus_script){
         var dsq = document.createElement('script');
